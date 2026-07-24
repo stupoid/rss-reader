@@ -119,6 +119,7 @@ flowchart TD
 ```
 
 Triggers:
+
 - Search input → `render()` (both feeds + items)
 - Feed chip click → `render()`
 - Item dot/row click → `loadAndRender()` (re-reads storage)

@@ -10,7 +10,7 @@ State model and behavior: see [state-model.md](./state-model.md).
 
 ## Architecture
 
-```
+```text
 ┌──────────────────────────────────────────────┐
 │  Popup (action)                              │
 │  popup.html + popup.ts + popup.css           │

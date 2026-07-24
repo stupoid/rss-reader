@@ -103,5 +103,5 @@ md += "|---|---|---|---|---|---|---|\n";
 for (const s of sessions) {
   md += `| ${s.date} | ${s.sessionId.slice(0, 8)} | ${s.messages} | ${s.duration} | ${s.tokens.input.toLocaleString()} | ${s.tokens.output.toLocaleString()} | $${s.cost} |\n`;
 }
-md += `\n**${sessions.length} sessions · ${totalMessages.toLocaleString()} messages · $${totalCost.toFixed(2)} total**\n`;
+md += `\n## ${sessions.length} sessions · ${totalMessages.toLocaleString()} messages · $${totalCost.toFixed(2)} total\n`;
 writeFileSync(join(CWD, "COST.md"), md);

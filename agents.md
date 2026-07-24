@@ -1,6 +1,7 @@
 # RSS Reader — Agent Guide
 
 ## Project overview
+
 npm install
 npm run dev     # build + watch (recompile on change)
 npm run session-info  # session metadata, cost, token usage
@@ -8,7 +9,6 @@ npm run build   # one-shot build
 npm run lint    # tsc --noEmit && biome check
 npm run test    # playwright test (34 tests, Chromium + Firefox)
 npm run package # build + zip for distribution
-
 
 Load extension: `chrome://extensions` → Developer mode → Load unpacked → select `dist/`.
 
@@ -22,20 +22,18 @@ Load extension: `chrome://extensions` → Developer mode → Load unpacked → s
 
 ## Architecture
 
-```
+```text
 src/
 ├── background.ts      # service worker: alarms, badge, refresh
 ├── popup/
 │   ├── popup.html     # single-pane UI (380×600px)
 │   ├── popup.css      # plain CSS, flexbox
-│   └── popup.ts       # render, multi-select, search, read/unread
+│   └── popup.ts       # feed/item management, OPML
 ├── shared/
-│   ├── types.ts       # Feed, FeedItem, ParsedFeed, constants
-│   ├── parser.ts      # RSS 2.0 + Atom → shared IR (DOMParser)
-│   ├── storage.ts     # chrome.storage.local CRUD wrappers
-│   ├── fetcher.ts     # fetch + parse
-│   └── opml.ts        # OPML import/export
-├── icons/             # PNG icons (16/48/128)
+│   ├── types.ts       # Feed, FeedItem, ParsedFeed + storage keys
+│   ├── parser.ts      # RSS 2.0 + Atom → ParsedFeed
+│   ├── storage.ts     # chrome.storage.local wrappers
+│   └── fetcher.ts     # fetch + parse pipeline
 └── manifest.json      # MV3 manifest (copied to dist/ on build)
 ```
 

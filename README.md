@@ -26,7 +26,7 @@ Load extension: open `chrome://extensions`, enable Developer mode, click "Load u
 
 ## Architecture
 
-```
+```text
 src/
 ├── background.ts      # service worker: alarms, badge, refresh
 ├── popup/
@@ -46,6 +46,7 @@ See [docs/design.md](docs/design.md) for the full architecture and design decisi
 See [docs/state-model.md](docs/state-model.md) for state diagrams and behavior.
 
 ## Features
+
 - Add/remove feeds by URL (RSS 2.0 + Atom)
 - Multi-select feeds with search
 - Read/unread toggle via dot (● / ○)

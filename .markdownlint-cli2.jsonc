@@ -1,0 +1,8 @@
+{
+  "config": {
+    "MD013": { "line_length": 600 },
+    "MD060": false,
+    "MD033": false
+  },
+  "fix": true
+}
