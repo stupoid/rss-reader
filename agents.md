@@ -18,7 +18,7 @@
 - **Storage is flat.** `feeds[]` and `items[]` as separate keys. Join on `feedId` at render time. Storage key constants live in `src/shared/types.ts` — never hardcode `"feeds"` or `"items"` strings.
 - **Parser normalizes** RSS + Atom into shared `ParsedFeed` IR. Downstream code is format-agnostic. Don't add format-specific branches outside `parser.ts`.
 - **Search gates feed selection.** Empty search = all items shown. Search with text = filtered by `selectedFeedIds` Set.
-- **Tests live in `tests/extension.spec.ts`.** Mock harness at `tests/harness/` loads real popup code with in-memory `chrome.*` shim.
+- **Tests live in `tests/extension.spec.ts`.** For test patterns (harness lifecycle, route interception, selectors, mock hooks), see `skill://testing`.
 
 ## Key files
 
