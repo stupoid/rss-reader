@@ -388,13 +388,14 @@ async function handleAddFeed(e: Event): Promise<void> {
 }
 
 async function handleRefresh(): Promise<void> {
-  refreshBtn.classList.add("spinning");
+  const icon = refreshBtn.querySelector(".refresh-icon")!;
+  icon.classList.add("spinning");
   try {
     // Tell the background worker to refresh (which also updates the badge)
     await chrome.runtime.sendMessage({ type: "REFRESH" });
     await loadAndRender();
   } finally {
-    refreshBtn.classList.remove("spinning");
+    icon.classList.remove("spinning");
   }
 }
 
