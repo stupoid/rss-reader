@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSS Reader — Test Harness</title>
+  <link rel="stylesheet" href="../../dist/popup/popup.css">
+</head>
+<body>
+  <header>
+    <h1>RSS Reader</h1>
+    <div>
+      <span class="menu-group">
+        <button id="menu-btn" title="Menu">&#x2699;</button>
+        <div id="menu-dropdown" class="hidden">
+          <button id="menu-import">Import feeds</button>
+          <button id="menu-export">Export feeds</button>
+        </div>
+      </span>
+      <span class="split-group">
+        <button id="refresh-btn" title="Refresh all feeds">&#x21bb;</button>
+        <button id="interval-btn" title="Change refresh interval"><span id="interval-label">15m</span> <span class="caret">&#x25be;</span></button>
+        <div id="interval-dropdown" class="hidden">
+          <button data-interval="5">5 minutes</button>
+          <button data-interval="15" class="active">15 minutes</button>
+          <button data-interval="30">30 minutes</button>
+          <button data-interval="60">1 hour</button>
+          <button data-interval="0">Manual only</button>
+        </div>
+      </span>
+    </div>
+  </header>
+
+  <section id="feed-input-section">
+    <form id="add-feed-form">
+      <input type="url" id="feed-url-input" placeholder="Feed URL..." required>
+      <button type="submit">Add</button>
+    </form>
+  </section>
+
+  <section id="feed-list-section">
+    <input type="text" id="feed-search" placeholder="Search feeds...">
+    <div id="feed-list"></div>
+  </section>
+
+  <section id="items-section">
+    <label id="show-read-label" class="hidden">
+      <input type="checkbox" id="show-read-checkbox">
+      Show read
+    </label>
+    <div id="items-list"></div>
+    <div id="empty-state" class="hidden">No unread items.</div>
+    <div id="loading-state" class="hidden">Loading...</div>
+  </section>
+
+  <!-- Test utilities -->
+  <script>
+    // Allow tests to reset storage via window.__reset()
+    window.__reset = async () => {
+      await chrome.storage.local.clear();
+      window.__openedTabs = [];
+      window.__sentMessages = [];
+    };
+  </script>
+
+  <!-- Chrome API mock (must load before popup script) -->
+  <script src="chrome-mock.js"></script>
+
+  <!-- Popup logic -->
+  <script src="../../dist/popup/popup.js" type="module"></script>
+  <input type="file" id="import-file-input" accept=".opml,.xml" hidden>
+</body>
+</html>

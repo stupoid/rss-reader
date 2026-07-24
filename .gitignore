@@ -1,1 +1,4 @@
 node_modules/
+dist/
+.playwright-user-data/
+test-results/

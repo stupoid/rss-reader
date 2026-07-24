@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "session-info": "node scripts/session-info.mjs",
+    "dev": "bash build.sh && npx tsc --watch",
+    "test": "npx playwright test --reporter=line",
+    "package": "bash build.sh && cd dist && zip -r ../rss-reader.zip ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.5",
+    "@playwright/test": "^1.61.1",
+    "@types/chrome": "^0.2.2",
+    "http-server": "^14.1.1",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}
