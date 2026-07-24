@@ -2,7 +2,7 @@
 
 A Chrome Extension (Manifest V3) RSS/Atom feed subscriber. No frameworks, no bundler — TypeScript + `tsc` + plain CSS.
 
-> Built for $0.91 across 781 messages over 3h 58m — see [COST.md](COST.md) for breakdown
+> Built for $0.93 across 792 messages over 4h 1m — see [COST.md](COST.md) for breakdown
 
 ## Quick start
 

@@ -1,61 +1,42 @@
-# RSS Reader — Agent Guide
+# AGENTS.md
 
-## Project overview
+## Commands
 
-npm install
-npm run dev     # build + watch (recompile on change)
-npm run session-info  # session metadata, cost, token usage
-npm run build   # one-shot build
-npm run lint    # tsc --noEmit && biome check
-npm run test    # playwright test (34 tests, Chromium + Firefox)
-npm run package # build + zip for distribution
+- `npm run build` — tsc + copy static files to `dist/`
+- `npm run test` — Playwright (42 tests, Chromium + Firefox)
+- `npm run lint` — tsc --noEmit + biome check --write (lint + format)
+- `npm run lint-md` — markdownlint on all docs
 
-Load extension: `chrome://extensions` → Developer mode → Load unpacked → select `dist/`.
+## Conventions
 
-## Workflow conventions
+- **Docs → test → code.** Document behavior, write a Playwright test, then implement.
+- **Imports use `.js` extensions.** Required by Chrome's ES module loader (`moduleResolution: "bundler"` in tsconfig). Exception: `import type` is erased at compile time — no `.js` needed.
+- **No bundler, no framework.** `tsc` only. Source in `src/`, output in `dist/`. Never edit files in `dist/`.
+- **DOM refs use `!`.** `document.getElementById("foo")!`. Biome allows this (`noNonNullAssertion: off` in biome.json).
+- **State is module-scoped** in `popup.ts`: `feeds[]`, `items[]`, `selectedFeedIds` (Set), `showRead`. Rendering is imperative — no framework.
+- **`loadAndRender()`** re-reads storage (use after mutations). **`render()`** re-renders from in-memory state (use for view/filter changes).
+- **Storage is flat.** `feeds[]` and `items[]` as separate keys. Join on `feedId` at render time. Storage key constants live in `src/shared/types.ts` — never hardcode `"feeds"` or `"items"` strings.
+- **Parser normalizes** RSS + Atom into shared `ParsedFeed` IR. Downstream code is format-agnostic. Don't add format-specific branches outside `parser.ts`.
+- **Search gates feed selection.** Empty search = all items shown. Search with text = filtered by `selectedFeedIds` Set.
+- **Tests live in `tests/extension.spec.ts`.** Mock harness at `tests/harness/` loads real popup code with in-memory `chrome.*` shim.
 
-- **Docs → test → code**: document behavior in `docs/state-model.md`, write a Playwright test, then implement.
-- **Feature tests live in `tests/extension.spec.ts`** — mock harness loads real popup code with in-memory `chrome.*` shim.
-- **Biome formats on `check --write`** — run `npx @biomejs/biome format --write src/` before committing.
-- **Imports use `.js` extensions** (required by Chrome's ES module loader; TypeScript resolves to `.ts` during compilation).
-- **No ESLint** — Biome handles linting, `tsc --noEmit` handles type-checking with `noUnusedLocals` + `noUnusedParameters`.
+## Key files
 
-## Architecture
+| File | Role |
+|---|---|
+| `src/popup/popup.ts` | All UI: render, feed management, read/unread, OPML import |
+| `src/shared/storage.ts` | chrome.storage.local CRUD wrappers |
+| `src/shared/parser.ts` | RSS 2.0 + Atom → shared IR (DOMParser-based) |
+| `src/background.ts` | Service worker: alarms, badge, message relay |
+| `src/shared/types.ts` | Types + storage key constants |
+| `tests/extension.spec.ts` | All feature tests |
 
-```text
-src/
-├── background.ts      # service worker: alarms, badge, refresh
-├── popup/
-│   ├── popup.html     # single-pane UI (380×600px)
-│   ├── popup.css      # plain CSS, flexbox
-│   └── popup.ts       # feed/item management, OPML
-├── shared/
-│   ├── types.ts       # Feed, FeedItem, ParsedFeed + storage keys
-│   ├── parser.ts      # RSS 2.0 + Atom → ParsedFeed
-│   ├── storage.ts     # chrome.storage.local wrappers
-│   └── fetcher.ts     # fetch + parse pipeline
-└── manifest.json      # MV3 manifest (copied to dist/ on build)
-```
+## Pitfalls
 
-Tests: `tests/extension.spec.ts` + `tests/harness/` (mock HTML + chrome-mock.js).
-
-Docs: `CONTEXT.md` (glossary), `docs/design.md` (architecture + decisions), `docs/state-model.md` (mermaid diagrams).
-
-## Key patterns
-
-- **DOM refs use `!` non-null assertions** — `document.getElementById("foo")!`. Biome allows this (configured in `biome.json`).
-- **State is module-scoped variables** — `feeds[]`, `items[]`, `selectedFeedIds` (Set), `showRead`, `initialized`. No framework.
-- **Rendering is imperative** — `render()` calls `renderFeeds()` + `renderItems()`. Triggers: search input, chip click, item action, add/remove/edit.
-- **`loadAndRender()`** re-reads storage (used after mutations). `render()` re-renders from in-memory state (used for view changes).
-- **Storage is flat** — `feeds[]` and `items[]` as separate keys in `chrome.storage.local`. Items join to feeds via `feedId`.
-- **Parser normalizes** — `parseFeed()` detects `<rss>` vs `<feed>`, normalizes both into `ParsedFeed`. Downstream never sees format differences.
-- **Search gates feed selection** — empty search = all items shown. Search has text = filtered by `selectedFeedIds` Set.
-- **"All" chip** — highlighted when all feeds in Set. Click toggles all/none.
-
-## Things to know before changing code
-
-- Background worker (alarms, badge, manual refresh) is **untestable in the mock harness** — only testable by loading the real extension.
-- The `console.warn` in `background.ts` is intentional (Biome suppressed via `// biome-ignore`).
-- `biome.json` disables `noNonNullAssertion` (load-bearing pattern for DOM refs).
-- `tsconfig.json` has `noUnusedLocals: true` and `noUnusedParameters: true` — any unused variable is a compile error.
-- `INTERVAL_OPTIONS` was deliberately removed — interval values are hardcoded in the HTML `<select>`. If adding new intervals, update both the HTML and the dropdown.
+- **Background worker (alarms, badge) is untestable** in the mock harness. Only testable by loading the real extension.
+- **`noUnusedLocals: true`** and **`noUnusedParameters: true`** in tsconfig. Any unused variable or parameter is a compile error.
+- **`console.warn` in `background.ts`** is intentional (service worker has no UI for errors). Suppressed via `// biome-ignore`.
+- **Interval values are duplicated** in the interval dropdown markup (`popup.html`, `harness.html`) and `popup.ts`. Update all three if adding new options.
+- **Biome only lints `src/` and `tests/`.** Config in `biome.json`. Other directories (scripts, docs) are not checked.
+- **`chrome.storage.local` has no partial-array-update.** Mutators read full array, modify, write back. Single-threaded SW makes this safe. See `docs/design.md#known-limitations--non-fixes` for details.
+- **`import type` is compile-time only.** No `.js` extension needed, no runtime import emitted. Don't flag missing `.js` on type-only imports.
