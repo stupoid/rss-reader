@@ -7,6 +7,7 @@ A Chrome Extension (Manifest V3) RSS/Atom feed subscriber. Built as a learning p
 Cross-browser: uses the `chrome.*` namespace, compatible with Firefox MV3 without a polyfill.
 
 State model and behavior: see [state-model.md](./state-model.md).
+
 ## Architecture
 
 ```
@@ -122,6 +123,8 @@ The popup UI uses plain CSS with flexbox. No Tailwind, no component library. The
 ```sh
 bash build.sh       # tsc + copy static files to dist/
 npx playwright test # 42 tests across Chromium + Firefox via mock harness
+```
+
 Load extension: Chrome → `chrome://extensions` → Developer mode → Load unpacked → select `dist/`.
 
 ## Known Limitations & Non-Fixes
