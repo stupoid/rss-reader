@@ -2,7 +2,7 @@
 
 A Chrome Extension (Manifest V3) RSS/Atom feed subscriber. No frameworks, no bundler — TypeScript + `tsc` + plain CSS.
 
-> Built for $0.67 across 568 messages over 3h 3m — see [COST.md](COST.md) for breakdown
+> Built for $0.91 across 781 messages over 3h 58m — see [COST.md](COST.md) for breakdown
 
 ## Quick start
 
@@ -20,7 +20,7 @@ Load extension: open `chrome://extensions`, enable Developer mode, click "Load u
 | `npm run dev` | Build once, then watch and recompile on changes |
 | `npm run build` | Compile TypeScript + copy static files to `dist/` |
 | `npm run lint` | Type-check (`tsc`) + lint (`biome`) |
-| `npm run test` | Playwright tests (34 across Chromium + Firefox) |
+| `npm run test` | Playwright tests (42 across Chromium + Firefox) |
 | `npm run session-info` | Print session metadata (model, tokens, cost) |
 | `npm run package` | Build + zip for Chrome Web Store / Firefox Add-ons |
 
@@ -64,10 +64,10 @@ See [docs/state-model.md](docs/state-model.md) for state diagrams and behavior.
 
 ## Testing
 
-Tests use a mock harness that loads the real popup code with an in-memory `chrome.*` shim. 17 features × 2 browsers (Chromium + Firefox) = 34 tests.
+Tests use a mock harness that loads the real popup code with an in-memory `chrome.*` shim. 21 features × 2 browsers (Chromium + Firefox) = 42 tests.
 
 ## Cost tracking
 
-`npm run session-info` reads omp session files and writes `COST.md`. A shutdown hook (`.omp/hooks/shutdown/record-cost.ts`) auto-runs this at session end.
+`npm run session-info` reads omp session files and writes `COST.md`. A shutdown hook (`.omp/hooks/shutdown/record-cost.mjs`) auto-runs this at session end.
 
 Background worker features (alarms, badge, manual refresh) are untestable in the harness — see [docs/design.md#limitations-of-mock-harness](docs/design.md).

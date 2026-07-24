@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
@@ -86,6 +86,18 @@ for (const file of files) {
   }
 }
 
+// Total duration across all sessions
+let totalMins = 0;
+for (const s of sessions) {
+  const [h, m] = s.duration.includes("h")
+    ? s.duration.split("h ").map((p) => Number.parseInt(p))
+    : [0, Number.parseInt(s.duration)];
+  totalMins += h * 60 + m;
+}
+const totalDuration = totalMins >= 60
+  ? `${Math.floor(totalMins / 60)}h ${totalMins % 60}m`
+  : `${totalMins}m`;
+
 // ── Output ──
 
 for (const s of sessions) {
@@ -94,8 +106,7 @@ for (const s of sessions) {
 
 console.log(`\n${sessions.length} sessions  ${totalMessages} messages  $${totalCost.toFixed(6)} total`);
 
-// Write COST.md
-const { writeFileSync } = await import("node:fs");
+// Write COST.md + update README
 let md = "# Project Cost\n\n";
 md += `> Last updated: ${new Date().toISOString()}\n\n`;
 md += "| Date | Session | Messages | Duration | Input | Output | Cost |\n";
@@ -105,3 +116,12 @@ for (const s of sessions) {
 }
 md += `\n## ${sessions.length} sessions · ${totalMessages.toLocaleString()} messages · $${totalCost.toFixed(2)} total\n`;
 writeFileSync(join(CWD, "COST.md"), md);
+
+// Update README cost line
+const readmePath = join(CWD, "README.md");
+const readme = readFileSync(readmePath, "utf-8");
+const updated = readme.replace(
+  /> Built for \$[\d.]+ across [\d,]+ messages over .+? —/,
+  `> Built for $${totalCost.toFixed(2)} across ${totalMessages.toLocaleString()} messages over ${totalDuration} —`,
+);
+writeFileSync(readmePath, updated);
